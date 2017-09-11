@@ -566,11 +566,11 @@ public class ViewDragHelper {
      * @param finalTop Final top position of child
      * @return true if animation should continue through {@link #continueSettling(boolean)} calls
      */
-    public boolean smoothSlideViewTo(View child, int finalLeft, int finalTop) {
+    public boolean smoothSlideViewTo(View child, int finalLeft, int finalTop, int duration) {
         mCapturedView = child;
         mActivePointerId = INVALID_POINTER;
 
-        return forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0);
+        return forceSettleCapturedViewAt(finalLeft, finalTop, 0, 0, duration);
     }
 
     /**
@@ -592,7 +592,7 @@ public class ViewDragHelper {
 
         return forceSettleCapturedViewAt(finalLeft, finalTop,
                 (int) VelocityTrackerCompat.getXVelocity(mVelocityTracker, mActivePointerId),
-                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId));
+                (int) VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId), -1);
     }
 
     /**
@@ -604,7 +604,7 @@ public class ViewDragHelper {
      * @param yvel Vertical velocity
      * @return true if animation should continue through {@link #continueSettling(boolean)} calls
      */
-    private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int xvel, int yvel) {
+    private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int xvel, int yvel, int duration) {
         final int startLeft = mCapturedView.getLeft();
         final int startTop = mCapturedView.getTop();
         final int dx = finalLeft - startLeft;
@@ -616,10 +616,13 @@ public class ViewDragHelper {
             setDragState(STATE_IDLE);
             return false;
         }
-
-        final int duration = computeSettleDuration(mCapturedView, dx, dy, xvel, yvel);
-        mScroller.startScroll(startLeft, startTop, dx, dy, 0);
-
+        final int calculatedDuration;
+        if (duration >= 0){
+            calculatedDuration = duration;
+        } else {
+            calculatedDuration = computeSettleDuration(mCapturedView, dx, dy, xvel, yvel);
+        }
+        mScroller.startScroll(startLeft, startTop, dx, dy, calculatedDuration);
         setDragState(STATE_SETTLING);
         return true;
     }

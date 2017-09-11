@@ -207,6 +207,12 @@ public class SlidingUpPanelLayout extends ViewGroup {
      */
     private boolean mIsTouchEnabled;
 
+    /**
+     * Duration of the panel slide in milliseconds.
+     * Default -1 - calculated by distance range
+     */
+    private int mPanelSlideDuration = -1;
+
     private float mPrevMotionY;
     private float mInitialMotionX;
     private float mInitialMotionY;
@@ -398,6 +404,19 @@ public class SlidingUpPanelLayout extends ViewGroup {
 
     public boolean isTouchEnabled() {
         return mIsTouchEnabled && mSlideableView != null && mSlideState != PanelState.HIDDEN;
+    }
+
+
+    /**
+     * Set duration of the panel slide in milliseconds.
+     * Default -1 - calculated by distance range
+     */
+    public void setPanelSlideDuration(int mPanelSlideDuration) {
+        this.mPanelSlideDuration = mPanelSlideDuration;
+    }
+
+    public int getPanelSlideDuration() {
+        return mPanelSlideDuration;
     }
 
     /**
@@ -1118,6 +1137,18 @@ public class SlidingUpPanelLayout extends ViewGroup {
             }
         }
     }
+    /**
+     * Change panel state to the given state with
+     *
+     * @param state - new panel state
+     * @param duration  - duration of the panel slide in milliseconds.
+     */
+    public void setPanelState(PanelState state, int duration) {
+        int oldDuration = mPanelSlideDuration;
+        setPanelSlideDuration(duration);
+        setPanelState(state);
+        setPanelSlideDuration(oldDuration);
+    }
 
     private void setPanelStateInternal(PanelState state) {
         if (mSlideState == state) return;
@@ -1216,7 +1247,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
         }
 
         int panelTop = computePanelTopPosition(slideOffset);
-        if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), panelTop)) {
+        if (mDragHelper.smoothSlideViewTo(mSlideableView, mSlideableView.getLeft(), panelTop, mPanelSlideDuration)) {
             setAllChildrenVisible();
             ViewCompat.postInvalidateOnAnimation(this);
             return true;
