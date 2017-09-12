@@ -1105,6 +1105,9 @@ public class SlidingUpPanelLayout extends ViewGroup {
      * @param state - new panel state
      */
     public void setPanelState(PanelState state) {
+        if(mDragHelper.getViewDragState() == ViewDragHelper.STATE_SETTLING){
+            mDragHelper.abort();
+        }
         if (state == null || state == PanelState.DRAGGING) {
             throw new IllegalArgumentException("Panel state cannot be null or DRAGGING.");
         }
